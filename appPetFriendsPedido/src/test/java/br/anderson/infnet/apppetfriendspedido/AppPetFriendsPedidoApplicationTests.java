@@ -1,0 +1,13 @@
+package br.anderson.infnet.apppetfriendspedido;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class AppPetFriendsPedidoApplicationTests {
+
+    @Test
+    void contextLoads() {
+    }
+
+}
