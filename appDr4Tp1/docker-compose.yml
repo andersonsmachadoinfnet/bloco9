@@ -1,0 +1,23 @@
+version: '3.9'
+
+services:
+  eureka-server:
+    image: eureka-server:latest
+    container_name: eureka-server
+    build:
+      context: ./eureka-server
+    ports:
+      - "8761:8761"
+
+  appdr4tp1:
+    image: appdr4tp1:latest
+    container_name: appdr4tp1
+    build:
+      context: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
+      - EUREKA_INSTANCE_PREFERIPADDRESS=true
