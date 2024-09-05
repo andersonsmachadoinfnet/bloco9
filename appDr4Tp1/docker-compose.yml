@@ -1,13 +1,29 @@
 version: '3.9'
 
 services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: teste.db
+      MYSQL_USER: usuario
+      MYSQL_PASSWORD: livre
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - redelocal
+
   eureka-server:
     image: eureka-server:latest
     container_name: eureka-server
     build:
-      context: ./eureka-server
+      context: ../eurekaservice
     ports:
       - "8761:8761"
+    networks:
+      - redelocal
 
   appdr4tp1:
     image: appdr4tp1:latest
@@ -18,6 +34,15 @@ services:
       - "8080:8080"
     depends_on:
       - eureka-server
+      - mysql
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
       - EUREKA_INSTANCE_PREFERIPADDRESS=true
+    networks:
+      - redelocal
+
+networks:
+  redelocal:
+
+volumes:
+  mysql-data:
