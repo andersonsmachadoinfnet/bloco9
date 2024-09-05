@@ -4,7 +4,9 @@ import br.anderson.infnet.appPbApiReceitaMedica.model.domain.Medicamento;
 import br.anderson.infnet.appPbApiReceitaMedica.model.domain.Paciente;
 import br.anderson.infnet.appPbApiReceitaMedica.model.domain.ReceitaMedica;
 import br.anderson.infnet.appPbApiReceitaMedica.model.domain.RegistroReceita;
+import br.anderson.infnet.appPbApiReceitaMedica.model.rabbitmq.ReceitaProducer;
 import br.anderson.infnet.appPbApiReceitaMedica.repository.ReceitaMedicaRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -13,12 +15,17 @@ import java.util.Collection;
 public class ReceitaMedicaService {
     private final MedicamentoService medicamentoService;
     private final PacienteService pacienteService;
+    private final ReceitaProducer receitaProducer;
     private ReceitaMedicaRepository _rps;
 
-    public ReceitaMedicaService(ReceitaMedicaRepository rps, MedicamentoService medicamentoService, PacienteService pacienteService) {
+    public ReceitaMedicaService(ReceitaMedicaRepository rps,
+                                MedicamentoService medicamentoService,
+                                PacienteService pacienteService,
+                                ReceitaProducer receitaProducer) {
         this._rps = rps;
         this.medicamentoService = medicamentoService;
         this.pacienteService = pacienteService;
+        this.receitaProducer = receitaProducer;
         if (_rps.count() == 0) {
             ReceitaMedica r = new ReceitaMedica();
             Paciente p = new Paciente();
@@ -57,6 +64,11 @@ public class ReceitaMedicaService {
         }
 
         // Salva a receita e devolve ao client da api...
+        try {
+            receitaProducer.send(lReceita);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
         return incluir(lReceita);
     }
 }
