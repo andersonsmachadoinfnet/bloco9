@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS fornecedor (
+    id         INTEGER     PRIMARY KEY AUTO_INCREMENT,
+    fornecedor VARCHAR(60) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS produto (
+    id    INTEGER       PRIMARY KEY AUTO_INCREMENT,
+    nome  VARCHAR(60)   NOT NULL,
+    preco DECIMAL(10,2) NOT NULL,
+    ean   VARCHAR(14)
+)
