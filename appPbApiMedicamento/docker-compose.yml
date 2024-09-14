@@ -1,0 +1,104 @@
+version: '3.9'
+
+services:
+#  mongo:
+#    image: mongo
+#    restart: always
+#    environment:
+#      MONGO_INITDB_ROOT_USERNAME: root
+#      MONGO_INITDB_ROOT_PASSWORD: example
+#    ports:
+#      - "27017:27017"
+#    networks:
+#      - redelocal
+#
+#  mongo-express:
+#    image: mongo-express
+#    restart: always
+#    ports:
+#      - 8081:8081
+#    environment:
+#      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+#      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+#      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+#      ME_CONFIG_BASICAUTH: false
+#    networks:
+#      - redelocal
+
+  eureka-server:
+    image: eureka-server:latest
+    container_name: eureka-server
+    build:
+      context: ../eurekaservice
+    ports:
+      - "8761:8761"
+    networks:
+      - redelocal
+
+  gateway-server:
+    image: gateway-server:latest
+    container_name: gateway-server
+    build:
+      context: ../gateway
+    depends_on:
+      - eureka-server
+    ports:
+      - "9000:9000"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - EUREKA_INSTANCE_PREFERIPADDRESS=true
+    networks:
+      - redelocal
+
+  apppbapimedicamento:
+    image: apppbapimedicamento:latest
+    container_name: apppbapimedicamento
+    build:
+      context: .
+    depends_on:
+      - eureka-server
+      - gateway-server
+    ports:
+      - "8000:8000"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - EUREKA_INSTANCE_PREFERIPADDRESS=true
+    networks:
+      - redelocal
+
+  apppbapipaciente:
+    image: apppbapipaciente:latest
+    container_name: apppbapipaciente
+    build:
+      context: ../appPbApiPaciente
+    depends_on:
+      - eureka-server
+      - gateway-server
+    ports:
+      - "8001:8001"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - EUREKA_INSTANCE_PREFERIPADDRESS=true
+    networks:
+      - redelocal
+
+  apppbapireceitamedica:
+    image: apppbapireceitamedica:latest
+    container_name: apppbapireceitamedica
+    build:
+      context: ../appPbApiReceitaMedica
+    depends_on:
+#      - mongo
+#      - mongo-express
+      - eureka-server
+      - gateway-server
+    ports:
+      - "8002:8002"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - EUREKA_INSTANCE_PREFERIPADDRESS=true
+    networks:
+      - redelocal
+
+networks:
+  redelocal:
